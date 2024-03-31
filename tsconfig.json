@@ -9,9 +9,9 @@
 
     /* Bundler mode */
     "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
-    "noEmit": true,
+    "outDir": "dist",
+    "rootDir": "src",
 
     /* Linting */
     "skipLibCheck": true,
