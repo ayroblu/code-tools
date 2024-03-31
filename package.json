@@ -1,0 +1,13 @@
+{
+  "name": "code-tools",
+  "module": "index.ts",
+  "type": "module",
+  "devDependencies": {
+    "@types/bun": "latest",
+    "tree-sitter": "^0.21.1",
+    "tree-sitter-javascript": "^0.20.4"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
