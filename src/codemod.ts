@@ -17,11 +17,22 @@ export function runCodemod<QueryItem extends TreeSitterQueryItem>({
   lang?: "tsx";
   query: QueryItem;
   onCapture: (captures: QueryCaptures<QueryItem>) => CodeEdit;
-}) {
+}): {
+  result: string;
+  timings: {
+    setup: number;
+    parsing: number;
+    traversal: number;
+    edit: number;
+  };
+} {
+  const time1 = performance.now();
   const parser = new Parser();
   parser.setLanguage(tsx);
+  const time2 = performance.now();
 
   const tree = parser.parse(source);
+  const time3 = performance.now();
 
   const edits: CodeEdit[] = [];
   const traverseQuery = buildTraverseQuery(query, (captures) => {
@@ -30,8 +41,19 @@ export function runCodemod<QueryItem extends TreeSitterQueryItem>({
     return { skip: true };
   });
   traverse(tree.rootNode, traverseQuery);
+  const time4 = performance.now();
 
-  return runEdits(source, edits);
+  const result = runEdits(source, edits);
+  const time5 = performance.now();
+  return {
+    result,
+    timings: {
+      setup: time2 - time1,
+      parsing: time3 - time2,
+      traversal: time4 - time3,
+      edit: time5 - time4,
+    },
+  };
 }
 
 /* Assumes edits are in ascending order */

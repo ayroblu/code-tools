@@ -38,6 +38,7 @@ if (isMainScript(import.meta.url)) {
         extensions.some((extension) => filePath.endsWith(extension)) &&
         existsSync(filePath),
     );
+  const timings: Record<string, number>[] = [];
   for (const filePath of filePaths) {
     const source = readFileSync(filePath, { encoding: "utf8" });
     const query = {
@@ -59,7 +60,7 @@ if (isMainScript(import.meta.url)) {
         },
       ],
     } as const;
-    const result = runCodemod({
+    const { result, timings: timing } = runCodemod({
       source,
       query,
       onCapture: (captures) => {
@@ -70,6 +71,7 @@ if (isMainScript(import.meta.url)) {
         };
       },
     });
+    timings.push(timing);
     writeFileSync(filePath, result);
   }
   console.log(
@@ -79,4 +81,19 @@ if (isMainScript(import.meta.url)) {
     (performance.now() - time2).toLocaleString(),
     "ms",
   );
+  Object.entries(aggregateTiming(timings)).forEach(([key, value]) => {
+    console.log(key, value.toLocaleString(), "ms");
+  });
+}
+
+function aggregateTiming(
+  timings: Record<string, number>[],
+): Record<string, number> {
+  const result: Record<string, number> = {};
+  for (const timing of timings) {
+    Object.entries(timing).forEach(([key, value]) => {
+      result[key] = (result[key] ?? 0) + value;
+    });
+  }
+  return result;
 }
