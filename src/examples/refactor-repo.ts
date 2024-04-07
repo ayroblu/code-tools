@@ -12,9 +12,10 @@
 
 import { execSync } from "node:child_process";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
-import { runCodemod } from "../codemod";
+import { runCodemod } from "../codemod.js";
+import { isMainScript } from "../misc-utils.js";
 
-if (require.main === module) {
+if (isMainScript(import.meta.url)) {
   // execSync -> await shell
   const gitFilesOutput = execSync("git ls-files $DIRECTORY", {
     env: { DIRECTORY: "." },
@@ -36,7 +37,9 @@ if (require.main === module) {
       items: [
         {
           type: "call_expression",
-          items: [{ field: "function", capture: "callName" }],
+          items: [
+            { field: "function", capture: "callName", text: "console.log" },
+          ],
         },
       ],
     } as const;

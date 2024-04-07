@@ -2,9 +2,10 @@ import Parser from "tree-sitter";
 import ts from "tree-sitter-typescript";
 import { traverse } from "../traverse";
 import { buildTraverseQuery } from "../query";
+import { isMainScript } from "../misc-utils";
 const { tsx } = ts;
 
-if (require.main === module) {
+if (isMainScript(import.meta.url)) {
   const parser = new Parser();
   parser.setLanguage(tsx);
 
