@@ -1,7 +1,7 @@
 import Parser from "tree-sitter";
 import ts from "tree-sitter-typescript";
-import { traverse } from "./traverse";
-import { buildTraverseQuery } from "./query";
+import { traverse } from "../traverse";
+import { buildTraverseQuery } from "../query";
 const { tsx } = ts;
 
 if (require.main === module) {

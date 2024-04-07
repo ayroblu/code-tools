@@ -14,7 +14,7 @@ const parser = new Parser();
 parser.setLanguage(tsx);
 
 function runTest() {
-  const sourceCode = "let x = 1; console.log(x);";
+  const sourceCode = "let x = 1;\nconsole.log(x);";
   const tree = parser.parse(sourceCode);
   const query = {
     type: "expression_statement",
@@ -22,7 +22,9 @@ function runTest() {
     items: [
       {
         type: "call_expression",
-        items: [{ field: "function", capture: "callName", text: 'console.log' }],
+        items: [
+          { field: "function", capture: "callName", text: "console.log" },
+        ],
       },
     ],
   } as const;

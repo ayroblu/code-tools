@@ -15,21 +15,22 @@ type TreeSitterQuerySubItem<Capture extends string = string> = (
   capture?: Capture;
   text?: string;
 };
-type TreeSitterQueryItem<Capture extends string = string> = {
+export type TreeSitterQueryItem<Capture extends string = string> = {
   type: string;
   capture?: Capture;
   items?: ReadonlyArray<TreeSitterQuerySubItem<Capture>>;
 };
-type QueryCaptures<T extends TreeSitterQueryItem> =
+type QueryCapturesName<T extends TreeSitterQueryItem> =
   T extends TreeSitterQueryItem<infer Captures> ? Captures : never;
+export type QueryCaptures<T extends TreeSitterQueryItem> = {
+  [captures in QueryCapturesName<T>]: Parser.SyntaxNode;
+};
 
 export function buildTraverseQuery<QueryItem extends TreeSitterQueryItem>(
   queryItem: QueryItem,
-  callback: (params: {
-    [captures in QueryCaptures<QueryItem>]: Parser.SyntaxNode;
-  }) => void,
+  callback: (params: QueryCaptures<QueryItem>) => void | { skip: boolean },
 ): TraverseQuery {
-  function onNode(node: Parser.SyntaxNode) {
+  function onNode(node: Parser.SyntaxNode): void | { skip: boolean } {
     function matchSubRecursive(
       node: Parser.SyntaxNode,
       subQueryItem: TreeSitterQuerySubItem,
@@ -75,13 +76,14 @@ export function buildTraverseQuery<QueryItem extends TreeSitterQueryItem>(
         });
       }
     }
+
     if (queryItem.type === node.type) {
       const captures: Record<string, Parser.SyntaxNode> = {};
       if (queryItem.capture) {
         captures[queryItem.capture] = node;
       }
       if (!queryItem.items) {
-        return captures;
+        return;
       }
       const isMatch = queryItem.items.every((item) =>
         node.namedChildren.some((child) =>
@@ -89,7 +91,7 @@ export function buildTraverseQuery<QueryItem extends TreeSitterQueryItem>(
         ),
       );
       if (isMatch) {
-        callback(captures as any);
+        return callback(captures as any);
       }
     }
   }
