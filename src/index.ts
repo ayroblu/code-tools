@@ -2,9 +2,10 @@ import Parser from "tree-sitter";
 import ts from "tree-sitter-typescript";
 import { traverse } from "./traverse";
 import { buildTraverseQuery } from "./query";
+import { isMainScript } from "./misc-utils";
 const { tsx } = ts;
 
-if (require.main === module) {
+if (isMainScript(import.meta.url)) {
   const parser = new Parser();
   parser.setLanguage(tsx);
 
@@ -25,9 +26,4 @@ if (require.main === module) {
   });
   // console.log(tree.rootNode.toString());
   traverse(tree.rootNode, traverseQuery);
-  // usecases:
-  // 1. move code
-  // 2. replace code
-  // 3. query across files - find definition
-  // 4. loop through all files, have mtimes changed, have sha changed. Find references
 }
