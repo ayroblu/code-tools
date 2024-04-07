@@ -42,7 +42,7 @@ function runEdits(source: string, edits: CodeEdit[]): string {
       source.slice(0, startIndex + adjustment) +
       newText +
       source.slice(endIndex + adjustment);
-    adjustment = newText.length - (endIndex - startIndex);
+    adjustment += newText.length - (endIndex - startIndex);
   }
   return source;
 }
