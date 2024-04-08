@@ -10,17 +10,16 @@
  *    $ fs.writeFileSync(filePath, source)
  */
 
-import { execSync } from "node:child_process";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { runCodemod } from "../codemod.js";
 import { isMainScript } from "../misc-utils.js";
+import { shell } from "./utils/shell.js";
 
 if (isMainScript(import.meta.url)) {
   const startTime = performance.now();
   // execSync -> await shell
-  const gitFilesOutput = execSync("git ls-files $DIRECTORY", {
+  const { stdout: gitFilesOutput } = await shell("git ls-files $DIRECTORY", {
     env: { DIRECTORY: "." },
-    encoding: "utf8",
   });
   const time2 = performance.now();
   console.log(
@@ -40,7 +39,9 @@ if (isMainScript(import.meta.url)) {
     );
   const timings: Record<string, number>[] = [];
   for (const filePath of filePaths) {
+    const timeBeforeRead = performance.now();
     const source = readFileSync(filePath, { encoding: "utf8" });
+    const readDuration = performance.now() - timeBeforeRead;
     const query = {
       type: ["jsx_self_closing_element", "jsx_opening_element"],
       items: [
@@ -71,6 +72,7 @@ if (isMainScript(import.meta.url)) {
         };
       },
     });
+    (timing as Record<string, number>)["read-file"] = readDuration;
     timings.push(timing);
     writeFileSync(filePath, result);
   }
