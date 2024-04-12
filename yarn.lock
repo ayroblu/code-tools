@@ -477,7 +477,7 @@ ms@2.1.3:
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.1.3.tgz#574c8138ce1d2b5861f0b44579dbadd60c6615b2"
   integrity sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==
 
-nan@^2.17.0, nan@^2.18.0:
+nan@^2.14.1, nan@^2.17.0, nan@^2.18.0:
   version "2.19.0"
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.19.0.tgz#bb58122ad55a6c5bc973303908d5b16cfdd5a8c0"
   integrity sha512-nO1xXxfh/RWNxfd/XPfbIfFk5vgLsAxUR9y5O0cHMJu/AW9U95JLXqthYHjEp+8gQ5p96K9jUp8nbVOxCdRbtw==
@@ -718,6 +718,28 @@ tree-sitter-javascript@0.20.4:
   integrity sha512-7IUgGkZQROI7MmX2ErKhE3YP4+rM2qwBy5JeukE7fJQMEYP9nHpxvuQpa+eOX+hE1im2pWVc1yDCfVKKCBtxww==
   dependencies:
     nan "^2.18.0"
+
+tree-sitter-python@^0.20.3:
+  version "0.20.4"
+  resolved "https://registry.yarnpkg.com/tree-sitter-python/-/tree-sitter-python-0.20.4.tgz#58cd55fbeaeb171e859c4ba4d9308b70f8c69065"
+  integrity sha512-F+94q/t9+4J5yaQnmfAqEf4OZFjuhuyniRtb9P2jPaBwHrbyJL44RKFALovZxhF0syLFKpTQ7ODywyiGeB1YMg==
+  dependencies:
+    nan "^2.17.0"
+
+tree-sitter-scala@^0.19.0:
+  version "0.19.0"
+  resolved "https://registry.yarnpkg.com/tree-sitter-scala/-/tree-sitter-scala-0.19.0.tgz#c4aefcc8ba39c2f0f021beeac694709115c76b55"
+  integrity sha512-PALw1LDNvMv/OdrHq5DD5eR7NULa7Lh/CqKCVRtL7ohc4I3E7cO5TkPaBc49MImHbUlpBKxIbH7KDdOyWAVkkg==
+  dependencies:
+    nan "^2.14.1"
+
+tree-sitter-starlark@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/tree-sitter-starlark/-/tree-sitter-starlark-1.1.0.tgz#d15c51c620389517f3d676c1d77f4234cbf40c55"
+  integrity sha512-gbSqJxyRCRGZpWGz5petx9ImvENogi5ZMu2diJyTRP/GbkEGi+dgHG2lyYME/FrXf204AJtjKKDM1HVuKANQYw==
+  dependencies:
+    nan "^2.17.0"
+    tree-sitter-python "^0.20.3"
 
 tree-sitter-typescript@^0.20.5:
   version "0.20.5"
