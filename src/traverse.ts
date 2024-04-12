@@ -10,3 +10,17 @@ export function traverse(node: Parser.SyntaxNode, query: TraverseQuery): void {
     traverse(child, query);
   }
 }
+
+export function traverseWithCursor(
+  cursor: Parser.TreeCursor,
+  query: TraverseQuery,
+): void {
+  const result = query[cursor.nodeType]?.(cursor.currentNode);
+  if (result?.skip) return;
+  if (cursor.gotoFirstChild()) {
+    do {
+      traverseWithCursor(cursor, query);
+    } while (cursor.gotoNextSibling());
+    cursor.gotoParent();
+  }
+}

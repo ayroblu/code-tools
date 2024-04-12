@@ -1,7 +1,7 @@
 import Parser from "tree-sitter";
 import ts from "tree-sitter-typescript";
 import { buildTraverseQuery } from "./query.js";
-import { traverse } from "./traverse.js";
+import { traverse, traverseWithCursor } from "./traverse.js";
 const { tsx } = ts;
 
 describe("query", () => {
@@ -41,7 +41,8 @@ function runTest() {
   const traverseQuery = buildTraverseQuery(query, (captures) => {
     capture = Object.keys(captures);
   });
-  traverse(tree.rootNode, traverseQuery);
+  // traverse(tree.rootNode, traverseQuery);
+  traverseWithCursor(tree.walk(), traverseQuery);
   return capture;
 }
 
