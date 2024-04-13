@@ -85,7 +85,7 @@ function matchSubRecursive(
   }
 }
 
-function getField(
+export function getField(
   node: Parser.SyntaxNode,
   fieldName: string,
 ): Parser.SyntaxNode | void {
@@ -104,12 +104,12 @@ function toArr<T>(arr: T | T[]): T[] {
 
 type TreeSitterQuerySubItem<Capture extends string = string> = (
   | {
-      type: string | string[];
+      type: string | ReadonlyArray<string>;
       items?: ReadonlyArray<TreeSitterQuerySubItem<Capture>>;
     }
   | { wildcard: true }
   | {
-      field: string | string[];
+      field: string | ReadonlyArray<string>;
       items?: ReadonlyArray<TreeSitterQuerySubItem<Capture>>;
     }
 ) & {

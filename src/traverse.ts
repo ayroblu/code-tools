@@ -13,13 +13,15 @@ export function traverse(node: Parser.SyntaxNode, query: TraverseQuery): void {
 
 export function traverseWithCursor(
   cursor: Parser.TreeCursor,
-  query: TraverseQuery,
+  ...queries: TraverseQuery[]
 ): void {
-  const result = query[cursor.nodeType]?.(cursor.currentNode);
-  if (result?.skip) return;
+  for (const query of queries) {
+    const result = query[cursor.nodeType]?.(cursor.currentNode);
+    if (result?.skip) return;
+  }
   if (cursor.gotoFirstChild()) {
     do {
-      traverseWithCursor(cursor, query);
+      traverseWithCursor(cursor, ...queries);
     } while (cursor.gotoNextSibling());
     cursor.gotoParent();
   }
