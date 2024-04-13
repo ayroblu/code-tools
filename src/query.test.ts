@@ -5,15 +5,23 @@ import { traverse, traverseWithCursor } from "./traverse.js";
 const { tsx } = ts;
 
 describe("query", () => {
-  it("should match valid expression", function () {
+  it("should match valid expression", () => {
     expect(runTest()).to.deep.equal(["expression", "callName"]);
   });
 
-  it("should match more generalised expression", function () {
+  it("should match more generalised expression", () => {
     expect(runGeneralTest()).to.deep.equal([
       ["identifier"],
       ["identifier"],
       ["identifier"],
+    ]);
+  });
+
+  it("should match each sub item", () => {
+    expect(runMultiMatchTest()).to.deep.equal([
+      { key: "key1", value: "'first'" },
+      { key: "key2", value: "'second'" },
+      { key: "key3", value: "'third'" },
     ]);
   });
 });
@@ -77,6 +85,38 @@ const fourth = <MyComp foo="Component" bar="string">{first}</MyComp>;
   const results: string[][] = [];
   const traverseQuery = buildTraverseQuery(query, (captures) => {
     results.push(Object.keys(captures));
+  });
+  traverse(tree.rootNode, traverseQuery);
+  return results;
+}
+
+function runMultiMatchTest() {
+  const sourceCode = `
+const a = {
+  key1: 'first',
+  key2: 'second',
+  key3: 'third',
+}
+  `.trim();
+  const tree = parser.parse(sourceCode);
+  const query = {
+    type: "object",
+    items: [
+      {
+        type: "pair",
+        items: [
+          { field: "key", capture: "key" },
+          { field: "value", capture: "value" },
+        ],
+      },
+    ],
+  } as const;
+
+  const results: { key: string; value: string }[] = [];
+  const traverseQuery = buildTraverseQuery(query, (captures) => {
+    const key = captures.key.text;
+    const value = captures.value.text;
+    results.push({ key, value });
   });
   traverse(tree.rootNode, traverseQuery);
   return results;

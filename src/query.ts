@@ -37,30 +37,32 @@ function matchSubRecursive(
   subQueryItem: TreeSitterQuerySubItem,
   captures: Record<string, Parser.SyntaxNode>,
 ): boolean {
-  if ("type" in subQueryItem) {
-    if (!toArr(subQueryItem.type).some((t) => t === node.type)) {
-      return false;
+  if (!subQueryItem.optional) {
+    if ("type" in subQueryItem) {
+      if (!toArr(subQueryItem.type).some((t) => t === node.type)) {
+        return false;
+      }
+    } else if ("field" in subQueryItem) {
+      if (
+        !toArr(subQueryItem.field).some(
+          (f) => node.parent && getField(node.parent, f) === node,
+        )
+      ) {
+        return false;
+      }
+    } else if ("wildcard" in subQueryItem) {
+    } else {
+      const exhaustiveCheck: never = subQueryItem;
+      throw new Error(`Unhandled case: ${exhaustiveCheck}`);
     }
-  } else if ("field" in subQueryItem) {
     if (
-      !toArr(subQueryItem.field).some(
-        (f) => node.parent && getField(node.parent, f) === node,
-      )
+      subQueryItem.text &&
+      (typeof subQueryItem.text === "string"
+        ? node.text !== subQueryItem.text
+        : !subQueryItem.text.test(node.text))
     ) {
       return false;
     }
-  } else if ("wildcard" in subQueryItem) {
-  } else {
-    const exhaustiveCheck: never = subQueryItem;
-    throw new Error(`Unhandled case: ${exhaustiveCheck}`);
-  }
-  if (
-    subQueryItem.text &&
-    (typeof subQueryItem.text === "string"
-      ? node.text !== subQueryItem.text
-      : !subQueryItem.text.test(node.text))
-  ) {
-    return false;
   }
 
   if (subQueryItem.capture) {
@@ -115,6 +117,7 @@ type TreeSitterQuerySubItem<Capture extends string = string> = (
 ) & {
   capture?: Capture;
   text?: string | RegExp;
+  optional?: boolean;
 };
 export type TreeSitterQueryItem<Capture extends string = string> = {
   type: string | ReadonlyArray<string>;
