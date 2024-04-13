@@ -1,28 +1,31 @@
 /**
- * 1. git ls-files
- * 2. filter by known string query (source code includes xyz)
- * 3. parse and search file for code
+ * For some bazel file, find all it's scala files, find all its imports
+ * Also for some bazel file, traverse all its dependencies to find all their scala files and what they import
+ * If scala file does not import a dependency specified in bazel, remove it from bazel
+ * It's possible that a imports b imports c. b never uses c but a uses c - I need the whole bazel graph
+ *
+ * 1. List all BUILD bazel files
+ * 2. For each bazel file determine the list of imports and transitive imports and exports
+ * 3. Import / export is `com.package.ClassName`
+ * 4. Filter out imports that you don't depend on AND your children don't depend on
  */
 
 import { existsSync, readFileSync } from "node:fs";
 import { isMainScript } from "../misc-utils.js";
 import { shell } from "./utils/shell.js";
 import Parser from "tree-sitter";
-import ts from "tree-sitter-typescript";
+import ts from "tree-sitter-starlark";
 import { buildTraverseQuery } from "../query.js";
-import { traverse, traverseWithCursor } from "../traverse.js";
-const { tsx } = ts;
+import { traverseWithCursor } from "../traverse.js";
 
 const parser = new Parser();
-parser.setLanguage(tsx);
+parser.setLanguage(ts);
 
 if (isMainScript(import.meta.url)) {
   const time1 = performance.now();
-  const { stdout: gitFilesOutput } = await shell("git ls-files $DIRECTORY", {
-    env: { DIRECTORY: "." },
-  });
+  const { stdout: gitFilesOutput } = await shell("git ls-files BUILD");
   const time2 = performance.now();
-  const extensions = [".js"];
+  const extensions = ["BUILD", "BUILD.bazel"];
   const filePaths = gitFilesOutput
     .split("\n")
     .filter(
@@ -84,7 +87,7 @@ if (isMainScript(import.meta.url)) {
   for (const { filename, line, column } of results) {
     console.log(`${filename}:${line}:${column}`);
   }
-  console.error("git ls-files", (time2 - time1).toLocaleString(), 'ms');
+  console.error("git ls-files", (time2 - time1).toLocaleString(), "ms");
   Object.entries(aggregateTiming(timings)).forEach(([key, value]) => {
     console.error(key, value.toLocaleString(), "ms");
   });
@@ -100,6 +103,17 @@ function aggregateTiming(
     });
   }
   return result;
+}
+
+function readBazelImports(filepath: string) {
+  // fs.readFileSync(filepath, 'utf8')
+  // parse and extract all dependencies (list of build targets)
+}
+function readBazelScalaExports(filepath: string) {
+  // read bazel file
+  // get sources
+  // list all files that match sources
+  // read scala files and list all imports
 }
 
 type Result = {
