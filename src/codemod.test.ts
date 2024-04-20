@@ -23,7 +23,7 @@ function runTest() {
       },
     ],
   } as const;
-  const { result } = runCodemod({
+  const result = runCodemod({
     source,
     query,
     onCapture: (captures) => {

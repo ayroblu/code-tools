@@ -2,7 +2,14 @@
 # yarn lockfile v1
 
 
-"@types/chai@^4.3.14":
+"@types/chai-string@^1.4.5":
+  version "1.4.5"
+  resolved "https://registry.yarnpkg.com/@types/chai-string/-/chai-string-1.4.5.tgz#988ff37526386e9c354219b163d7ecf81bab8d2d"
+  integrity sha512-IecXRMSnpUvRnTztdpSdjcmcW7EdNme65bfDCQMi7XrSEPGmyDYYTEfc5fcactWDA6ioSm8o7NUqg9QxjBCCEw==
+  dependencies:
+    "@types/chai" "*"
+
+"@types/chai@*", "@types/chai@^4.3.14":
   version "4.3.14"
   resolved "https://registry.yarnpkg.com/@types/chai/-/chai-4.3.14.tgz#ae3055ea2be43c91c9fd700a36d67820026d96e6"
   integrity sha512-Wj71sXE4Q4AkGdG9Tvq1u/fquNz9EdG4LIJMwVVII7ashjD/8cf8fyIfJAjRr6YcsXnSE8cOGQPq1gqeR8z+3w==
@@ -109,6 +116,11 @@ camelcase@^6.0.0:
   version "6.3.0"
   resolved "https://registry.yarnpkg.com/camelcase/-/camelcase-6.3.0.tgz#5685b95eb209ac9c0c177467778c9c84df58ba9a"
   integrity sha512-Gmy6FhYlCY7uOElZUSbxo2UCDH8owEk996gkbrpsgGtrJLM3J7jGxl9Ic7Qwwj4ivOE5AWZWRMecDdF7hqGjFA==
+
+chai-string@^1.5.0:
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/chai-string/-/chai-string-1.5.0.tgz#0bdb2d8a5f1dbe90bc78ec493c1c1c180dd4d3d2"
+  integrity sha512-sydDC3S3pNAQMYwJrs6dQX0oBQ6KfIPuOZ78n7rocW0eJJlsHPh2t3kwW7xfwYA/1Bf6/arGtSUo16rxR2JFlw==
 
 chai@^5.1.0:
   version "5.1.0"

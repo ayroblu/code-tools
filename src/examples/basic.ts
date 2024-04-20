@@ -1,6 +1,6 @@
 import Parser from "tree-sitter";
 import ts from "tree-sitter-typescript";
-import { traverse } from "../traverse";
+import { traverseWithCursor } from "../traverse";
 import { buildTraverseQuery } from "../query";
 import { isMainScript } from "../misc-utils";
 const { tsx } = ts;
@@ -25,7 +25,7 @@ if (isMainScript(import.meta.url)) {
     console.log(captures);
   });
   // console.log(tree.rootNode.toString());
-  traverse(tree.rootNode, traverseQuery);
+  traverseWithCursor(tree.walk(), traverseQuery);
   // usecases:
   // 1. move code
   // 2. replace code

@@ -10,7 +10,7 @@ import { shell } from "./utils/shell.js";
 import Parser from "tree-sitter";
 import ts from "tree-sitter-typescript";
 import { buildTraverseQuery } from "../query.js";
-import { traverse, traverseWithCursor } from "../traverse.js";
+import { traverseWithCursor } from "../traverse.js";
 const { tsx } = ts;
 
 const parser = new Parser();
@@ -84,7 +84,7 @@ if (isMainScript(import.meta.url)) {
   for (const { filename, line, column } of results) {
     console.log(`${filename}:${line}:${column}`);
   }
-  console.error("git ls-files", (time2 - time1).toLocaleString(), 'ms');
+  console.error("git ls-files", (time2 - time1).toLocaleString(), "ms");
   Object.entries(aggregateTiming(timings)).forEach(([key, value]) => {
     console.error(key, value.toLocaleString(), "ms");
   });
