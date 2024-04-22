@@ -3,7 +3,7 @@ import ts from "tree-sitter-typescript";
 import { traverseWithCursor, type TraverseQuery } from "../../traverse.js";
 import { getField } from "../../query.js";
 import { runEdits, type CodeEdit } from "../../codemod.js";
-import { pred } from "../../misc-utils.js";
+import { pred } from "../utils.js";
 
 const { tsx } = ts;
 

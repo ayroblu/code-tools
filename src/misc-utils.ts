@@ -6,7 +6,3 @@ export function isMainScript(importMetaUrl: string) {
     return process.argv[1] === modulePath;
   }
 }
-
-export function pred<T>(value: T, f: (v: T) => unknown) {
-  return f(value) ? value : undefined;
-}
