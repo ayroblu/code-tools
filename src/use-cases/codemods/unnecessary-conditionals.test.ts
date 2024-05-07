@@ -172,6 +172,23 @@ run();
 `,
   },
   {
+    name: "Should resolve default arguments for arrow functions with no references as value",
+    input: `
+const run = (a: boolean = true) => {
+  if (a) {
+    console.log(true);
+  }
+}
+run();
+`,
+    expected: `
+const run = (a: boolean = true) => {
+  console.log(true);
+}
+run();
+`,
+  },
+  {
     name: "should not resolve conditions when functions are exported",
     input: `
 export function run(a: boolean = true) {

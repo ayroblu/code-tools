@@ -9,7 +9,10 @@ const { tsx } = ts;
 
 type Scope = {
   vars: {
-    [key: string]: Parser.SyntaxNode;
+    [key: string]: {
+      node: Parser.SyntaxNode;
+      isExported: boolean;
+    };
   };
   shadows: boolean;
 };
@@ -65,12 +68,18 @@ export function unnecessaryConditionals(source: string) {
     ].some((type) => node.parent?.type === type);
     if (isDeclarator) return;
     const name = node.text;
-    const decNode = scopes.findLast((scope) => scope.vars[name])?.vars[name];
+    const decNode = scopes.findLast((scope) => scope.vars[name])?.vars[name]
+      .node;
     if (decNode) {
       resolvedDec.set(node, decNode);
     }
   });
 
+  // Conditions have 3 resolutions
+  // if (true) {}
+  // const a = true; if (a) {}
+  // function b(a) {if (a) {}}b(true);
+  // function b(a) {if (a) {}}const c = true;b(c); // various levels to this nesting
   function resolveNode(node: Parser.SyntaxNode): boolean | void {
     if (node.type === "true") {
       return true;
@@ -112,11 +121,6 @@ export function unnecessaryConditionals(source: string) {
     }
   }
 
-  // Conditions have 3 resolutions
-  // if (true) {}
-  // const a = true; if (a) {}
-  // function b(a) {if (a) {}}b(true);
-  // function b(a) {if (a) {}}const c = true;b(c); // various levels to this nesting
   const edits: CodeEdit[] = conditions.flatMap(({ ifNode }) => {
     const condition = getField(ifNode, "condition")?.namedChildren[0];
     const conditionResult = condition && resolveNode(condition);
@@ -154,7 +158,8 @@ function getTraverseDeclarations() {
           lastScope.shadows = true;
         }
       }
-      lastScope.vars[name] = node;
+      const isExported = node.parent?.type === "export_statement";
+      lastScope.vars[name] = { node, isExported };
     }
   };
   const declarationsQuery: TraverseQuery = {
@@ -228,7 +233,8 @@ function buildRefsMap({
     if (!name) {
       return;
     }
-    const decNode = scopes.findLast((scope) => scope.vars[name])?.vars[name];
+    const decNode = scopes.findLast((scope) => scope.vars[name])?.vars[name]
+      .node;
     if (decNode) {
       goToDefMap.set(node, decNode);
       const decParams = getField(decNode, "parameters");

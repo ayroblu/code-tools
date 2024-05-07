@@ -11,14 +11,7 @@ if (isMainScript(import.meta.url)) {
 
   const sourceCodes = [
     `
-function a(param: string, opt?: {} = {}) {
-  //todo
-}
-a('123');
-b.a('123');
-`,
-    `
-const a = (param: string) => {
+export function a(param: string, opt?: {} = {}) {
   //todo
 }
 `,
