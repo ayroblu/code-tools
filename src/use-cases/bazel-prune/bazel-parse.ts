@@ -45,7 +45,7 @@ function getScalaTraverseQuery({ baseTarget }: { baseTarget: string }) {
     items: [
       {
         field: "function",
-        text: /(scala_library|target)/,
+        text: /(java_library|scala_library|target)/,
         capture: "func",
       },
       {

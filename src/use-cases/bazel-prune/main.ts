@@ -9,6 +9,7 @@ import { basename, dirname, join, resolve } from "node:path";
 import { glob } from "glob";
 import { parseScalaImportsExports } from "./scala-parse.js";
 import { parseThriftImportsExports } from "./thrift-parse.js";
+import { parseJavaImportsExports } from "./java-parse.js";
 
 // Only trim scala_libs
 const { stdout } = await shell("git ls-files");
@@ -106,7 +107,7 @@ async function getExports(
     return;
   }
   seen.add(dep);
-  const isFound = dep.includes("example/path");
+  const isFound = dep.includes("example/main");
   if (isFound) {
     console.log(" ".repeat(depth * 2), "found!", dep);
   }
@@ -164,6 +165,10 @@ async function getExports(
       } else if (file.endsWith(".thrift")) {
         const contents = readFileSync(join(baseTarget, file), "utf-8");
         const { exports } = parseThriftImportsExports(contents);
+        directExports.push(...exports);
+      } else if (file.endsWith(".java")) {
+        const contents = readFileSync(join(baseTarget, file), "utf-8");
+        const { exports } = parseJavaImportsExports(contents);
         directExports.push(...exports);
       }
     }
