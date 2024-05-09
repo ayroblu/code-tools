@@ -8,83 +8,75 @@ parser.setLanguage(scala);
 
 export function parseScalaImportsExports(source: string) {
   const tree = parser.parse(source);
+  const imports: string[] = [];
+  const exportNames: string[] = [];
   const packageQuery = {
     type: "package_identifier",
     capture: "packageName",
   } as const;
-  const importQuery = {
-    type: "import_declaration",
-    capture: "importDeclaration",
-  } as const;
   let packageName = "";
-  const imports: string[] = [];
-  const exportNames: string[] = [];
   const packageTraverseQuery = buildTraverseQuery(packageQuery, (captures) => {
     packageName = captures.packageName.text;
     return { skip: true };
   });
-  const importTraverseQuery = buildTraverseQuery(importQuery, (captures) => {
-    imports.push(...importNodeToImports(captures.importDeclaration));
-    return { skip: true };
-  });
-  traverseWithCursor(tree.walk(), packageTraverseQuery, importTraverseQuery);
-  // TODO: Think about package objects
+  tree.rootNode.namedChildren
+    .filter((node) => node.type === "import_declaration")
+    .forEach((node) => {
+      imports.push(...importNodeToImports(node));
+    });
+  traverseWithCursor(tree.walk(), packageTraverseQuery);
   const possibleExportTypes = [
     "object_definition",
     "class_definition",
     "trait_definition",
+    "type_definition",
+    "val_definition",
   ];
+  const packageObjectExports: string[] = [];
   for (const node of tree.rootNode.namedChildren) {
     if (possibleExportTypes.includes(node.type)) {
-      const name = getField(node, "name")?.text ?? "";
-      exportNames.push(name);
+      const name =
+        getField(node, "name")?.text ??
+        node.namedChildren.find((n) => n.type === "identifier")?.text;
+      if (name) {
+        exportNames.push(name);
+      } else {
+        // console.log("no name", node.toString(), node.text);
+      }
+    } else if (node.type === "package_object") {
+      const namespace = getField(node, "name")?.text;
+      if (!namespace) continue;
+      const body = getField(node, "body");
+      if (!body) continue;
+      packageObjectExports.push(`${packageName}.${namespace}._`);
+      for (const node of body.namedChildren) {
+        if (!possibleExportTypes.includes(node.type)) {
+          continue;
+        }
+        const name = getField(node, "name")?.text;
+        if (name) {
+          packageObjectExports.push(`${packageName}.${namespace}.${name}`);
+        } else {
+          const nameNode = getField(node, "pattern");
+          if (nameNode?.type === "identifier") {
+            packageObjectExports.push(
+              `${packageName}.${namespace}.${nameNode.text}`,
+            );
+          } else {
+            console.log("unknown export", node.text);
+          }
+        }
+      }
     }
   }
   const exports = exportNames.map((e) => [packageName, e].join("."));
+  exports.push(`${packageName}._`);
+  if (packageObjectExports.length) {
+    exports.push(...packageObjectExports);
+  }
   return { imports, exports };
 }
 
-function createCacheManager<K, V>() {
-  const cache = new Map<K, Promise<V> | { value: V }>();
-  function get(key: K, func: () => Promise<V> | V): Promise<V> | V {
-    const result =
-      cache.get(key) ??
-      (() => {
-        const value = func();
-        if (value instanceof Promise) {
-          cache.set(key, value);
-          value.then(
-            (v) => cache.set(key, { value: v }),
-            () => {
-              cache.delete(key);
-            },
-          );
-          return value;
-        } else {
-          cache.set(key, { value });
-          return { value };
-        }
-      })();
-
-    if (result instanceof Promise) {
-      return result;
-    } else {
-      return result.value;
-    }
-  }
-  return {
-    get,
-  };
-}
-type ImportExports = { exports: string[]; imports: string[] };
-const cacheManager = createCacheManager<string, ImportExports>();
-
-// function readScalaImportExports(filepath: string) {
-//   return cacheManager.get(filepath, () => {
-//     const source = readFileSync(filepath, { encoding: "utf8" });
-// return parseScalaImportsExports(source);
-//   });
-// }
 function importNodeToImports(node: Parser.SyntaxNode): string[] {
   const importParts = node.namedChildren.map((n) =>
     n.type === "import_selectors"
@@ -96,7 +88,22 @@ function importNodeToImports(node: Parser.SyntaxNode): string[] {
       : n.text,
   );
   const variations = buildVariations(importParts);
-  return variations.map((variation) => variation.join("."));
+  return (
+    variations
+      .map((variation) => variation.join("."))
+      // due to a bug in parsing with npm libs, imports in classes are captured
+      .filter((v) => v.startsWith("com"))
+      .map((variation) => {
+        const items = variation.split(".");
+        const index = items.findIndex(
+          (item) => item[0] === item[0].toUpperCase(),
+        );
+        if (index > 0 && index < items.length - 1) {
+          return items.slice(0, index + 1).join(".");
+        }
+        return variation;
+      })
+  );
 }
 function buildVariations(parts: (string | string[])[]): string[][] {
   let variations: string[][] = [[]];
@@ -108,6 +115,9 @@ function buildVariations(parts: (string | string[])[]): string[][] {
     } else {
       for (const variation of variations) {
         variation.push(part);
+      }
+      if (part[0] === part[0].toUpperCase()) {
+        break;
       }
     }
   }
